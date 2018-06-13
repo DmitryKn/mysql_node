@@ -1,3 +1,5 @@
+const express = require('express');
+const app = express();
 const faker = require('faker');
 const mysql = require('mysql');
 
@@ -7,25 +9,22 @@ const con = mysql.createConnection({
   password: "root",
   database: "join_us"
 });
-
 con.connect(err => {
   if (err) throw err;
-  console.log("Connected!");
+  console.log("DB Connected!");
 });
 
-var data = []; //создание массива
-for(var i = 0; i < 500; i ++){
-    data.push([
-      faker.internet.email(), //имейлы
-      faker.date.past()     //время
-    ])
-}
 
-var q = 'INSERT INTO users (email, created_at) VALUES ?';
-
-con.query(q, [data], (err, result) => {
-  if(err) throw error;
-  console.log(result);
+//ROUTES
+app.get("/", (req, res) => {
+  var q = "SELECT COUNT(*) AS count FROM users;";
+  con.query(q, (err, result) => {
+    if(err) throw err;
+    var count = result[0].count;
+    res.send("We have " + count + " users in our database.")
+  })
 })
 
-con.end();
+app.listen(3000, () => {
+  console.log("Server started. Port 3000");
+})
